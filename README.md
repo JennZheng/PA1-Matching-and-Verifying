@@ -1,8 +1,8 @@
 # PA1-Matching-and-Verifying
 COP4533 Programing Assignment 1: Implementing Gale-Shapley
 
-#Team
+# Team
 Jennifer Zheng: 52838059
 
-#Build Instructions
+# Build Instructions
 N/A
