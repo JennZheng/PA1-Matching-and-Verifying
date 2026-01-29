@@ -102,28 +102,38 @@ def parse_matching(matchedFile, n):
 
 
 def checkStability(n, hospital_prefs, student_prefs, hospital_match, student_match):
-    # student ranking table
+    # Build ranking tables
+    hospital_rank = [[0] * n for _ in range(n)]
+    for h in range(n):
+        for rank, s in enumerate(hospital_prefs[h]):
+            hospital_rank[h][s] = rank
+
     student_rank = [[0] * n for _ in range(n)]
     for s in range(n):
         for rank, h in enumerate(student_prefs[s]):
             student_rank[s][h] = rank
-    
-    # Check for blocking pairs
-    for h in range(n):
-        current_student = hospital_match[h]
-        for s in hospital_prefs[h]:
-            if s == current_student:
-                break
 
+    # Check all possible hospital-student pairs
+    for h in range(n):
+        for s in range(n):
+            current_student = hospital_match[h]
             current_hospital = student_match[s]
-            # student prefers h' over current h
-            if student_rank[s][h] < student_rank[s][current_hospital]:
-                return f"UNSTABLE: Blocking pair found: Hospital {h + 1} and Student {s + 1}"
+
+            # Skip current matches
+            if s == current_student:
+                continue
+
+            # Hospital prefers s over its current match?
+            if hospital_rank[h][s] < hospital_rank[h][current_student]:
+                # Student prefers h over their current match?
+                if student_rank[s][h] < student_rank[s][current_hospital]:
+                    return f"UNSTABLE: Blocking pair found: Hospital {h + 1} and Student {s + 1}"
+
     return None
 
 def main():
-    input_file = input("Give the input file name: ")
-    matched_file = input("Give the matched file name: ")
+    input_file = input("Enter the input file name: ")
+    matched_file = input("Enter the matched file name: ")
 
     parsed, error = checkInput(input_file)
     if error:
