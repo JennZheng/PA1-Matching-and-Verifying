@@ -1,57 +1,63 @@
-def matching(n, hospital_prefs, student_prefs):
+# Necessary imports
+import sys
+
+# Matching algorithm
+# Inputs are number of hospitals and students and each with a list of preferences
+def matching(n, hospitals, students):
     
     # Base Case
     if n == 0:
         return []
 
-    # Compute student rankings
+    # Compute how students rank each hospital
     student_rank = [[0] * n for _ in range(n)]
     for s in range(n):
-        for rank, h in enumerate(student_prefs[s]):
+        for rank, h in enumerate(students[s]):
             student_rank[s][h] = rank
 
-    # Track next hospital to propose to each student
-    next_proposal_index = [0] * n
+    # Keep track of which index in preference list for each hospital
+    next = [0] * n
 
-    # Place to hold index
+    # Matches
     hospital_match = [-1] * n 
     student_match = [-1] * n
 
-    # Start with all hospitals free
-    free_hospitals = list(range(n))
+    # Start with all hospitals free and seek a match
+    free = list(range(n))
 
-    while free_hospitals:
-        h = free_hospitals.pop()
+    # Loop through until all hospitals propose
+    while free:
+        # Remove once proposed
+        h = free.pop()
         
-        # Skip if h has exhausted all proposals
-        if next_proposal_index[h] >= n:
+        # Hospital cannot be matches if it approached everyone
+        if next[h] >= n:
             continue
 
         # h proposes to next student on its list
-        s = hospital_prefs[h][next_proposal_index[h]]
-        next_proposal_index[h] += 1
+        s = hospitals[h][next[h]]
+        next[h] += 1
 
-        current_h = student_match[s]
-
-        if current_h == -1:
-            # Student s is free: accept h
+        # If student is free, accept
+        current = student_match[s]
+        if current== -1:
             student_match[s] = h
             hospital_match[h] = s
         else:
-            # s is tentatively matched; decide: h or current_h?
-            if student_rank[s][h] < student_rank[s][current_h]:
-                # s prefers h: accept and reject current_h
+            # If student has a tentative match
+            if student_rank[s][h] < student_rank[s][current]:
+                # Based on the preference, make a decision
                 student_match[s] = h
                 hospital_match[h] = s
-                hospital_match[current_h] = -1
+                hospital_match[current] = -1
                 
-                # current_h becomes free again
-                if next_proposal_index[current_h] < n:
-                    free_hospitals.append(current_h)
+                # The rejected hospital is free 
+                if next[current] < n:
+                    free.append(current)
             else:
-                # s prefers current_h: reject h
-                if next_proposal_index[h] < n:
-                    free_hospitals.append(h)
+                # IF current is preferred, reject
+                if next[h] < n:
+                    free.append(h)
 
     return hospital_match
 
@@ -79,31 +85,31 @@ def read_input():
     if n == 0:
         return (0, [], [])
     
-    # Read hospital preferences
-    hospital_prefs = []
+    # Read each hospital preferences
+    hospitals = []
     for _ in range(n):
         if idx + n > len(data):
             return None
         prefs = [int(x) - 1 for x in data[idx:idx + n]]
         idx += n
-        # Validate permutation
+        # Validate
         if sorted(prefs) != list(range(n)):
             return None
-        hospital_prefs.append(prefs)
+        hospitals.append(prefs)
     
     # Read student preferences
-    student_prefs = []
+    students = []
     for _ in range(n):
         if idx + n > len(data):
             return None
         prefs = [int(x) - 1 for x in data[idx:idx + n]]
         idx += n
-        # Validate permutation
+        # Validate
         if sorted(prefs) != list(range(n)):
             return None
-        student_prefs.append(prefs)
+        students.append(prefs)
     
-    return (n, hospital_prefs, student_prefs)
+    return (n, hospitals, students)
 
 
 def main():
@@ -112,14 +118,13 @@ def main():
     if result is None:
         return
     
-    n, hospital_prefs, student_prefs = result
+    n, hospitals, students = result
     
     if n == 0:
         return
     
-    hospital_match = matching(n, hospital_prefs, student_prefs)
+    hospital_match = matching(n, hospitals, students)
     
-    # Output: 1-based indices
     for h in range(n):
         s = hospital_match[h]
         print(f"{h + 1} {s + 1}")
