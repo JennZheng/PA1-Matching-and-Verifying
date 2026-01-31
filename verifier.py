@@ -17,7 +17,7 @@ def checkInput(inputFile):
                 return None, f"INVALID: {n} is not a non-negative number"
             
             # read the hospital preferences
-            hospital_prefs = []
+            hospitals = []
             for i in range(n):
                 line = f.readline().strip()
                 if not line:
@@ -30,10 +30,10 @@ def checkInput(inputFile):
                 # make sure there are exactly n entries with no duplicates
                 if len(prefs) != n or set(prefs) != set(range(n)):
                     return None
-                hospital_prefs.append(prefs)
+                hospitals.append(prefs)
             
             #read the student preferences
-            student_prefs = []
+            students = []
             for i in range(n):
                 line = f.readline().strip()
                 if not line:
@@ -46,8 +46,8 @@ def checkInput(inputFile):
                 if len(prefs) != n or set(prefs) != set(range(n)):
                     return None
                 
-                student_prefs.append(prefs)
-            return (n, hospital_prefs, student_prefs), None
+                students.append(prefs)
+            return (n, hospitals, students), None
     # Handles missing file
     except FileNotFoundError:
         return None, "INVALID: Cannot open input file"
@@ -101,16 +101,16 @@ def parse_matching(matchedFile, n):
         return None, None, f"INVALID: Cannot open matching file '{matchedFile}'"
 
 
-def checkStability(n, hospital_prefs, student_prefs, hospital_match, student_match):
+def checkStability(n, hospitals, students, hospital_match, student_match):
     # Build ranking tables
     hospital_rank = [[0] * n for _ in range(n)]
     for h in range(n):
-        for rank, s in enumerate(hospital_prefs[h]):
+        for rank, s in enumerate(hospitals[h]):
             hospital_rank[h][s] = rank
 
     student_rank = [[0] * n for _ in range(n)]
     for s in range(n):
-        for rank, h in enumerate(student_prefs[s]):
+        for rank, h in enumerate(students[s]):
             student_rank[s][h] = rank
 
     # Check all possible hospital-student pairs
@@ -140,14 +140,14 @@ def main():
         print(error)
         return
 
-    n, hospital_prefs, student_prefs = parsed
+    n, hospitals, students = parsed
 
     hospital_match, student_match, error = parse_matching(matched_file, n)
     if error:
         print(error)
         return
 
-    error = checkStability(n, hospital_prefs, student_prefs, hospital_match, student_match)
+    error = checkStability(n, hospitals, students, hospital_match, student_match)
     if error:
         print(error)
         return
